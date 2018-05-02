@@ -41,8 +41,6 @@ class MenuItem(Base):
     onupdate=get_current_time)
 # automatically updates on creation and update
 
-    def __init__(self, name):
-        self.name = name
 
         """
         Return object data in easily serializeable format
