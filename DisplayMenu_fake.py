@@ -14,7 +14,7 @@ from database_setup import Base, Restaurant, MenuItem, User
 engine=create_engine('sqlite:///restaurantmenu.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
-ession = DBSession()
+session = DBSession()
 
 
 # Added fake database in menu items for our website before login.

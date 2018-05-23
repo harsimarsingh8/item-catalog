@@ -1,54 +1,65 @@
-
-* {
-	font-family: "Reenie Beanie","Rock Salt",Monoton,"Black Han Sans";
-	font-weight: 700;
-}
-.logo {
-  font-family:'Faster One', cursive;
-  margin-left:20px;
+	a.logoo{
+  font-family: 'Titan One', cursive;
+  margin-left:50px;
+	color: blue;
+	font-size: 20px;
 }
 
+#aa {
+		color: blue;
+	}
+
+.btn {
+	margin-top: 30px;
+	top: 5px;
+	bottom: 5px;
+	border-color: #9FB80A;
+
+}
+.as{
+	color: blue;
+}
 
 .elem {
   margin-right: 10%;
 }
 
 h1 {
-	font-family:"Reenie Beanie","Rock Salt",Monoton,"Black Han Sans";
+	font-family: 'Titan One', cursive;'Caveat Brush', cursive;
 	font-size: 50px;
-	color: #51453B;
+	color: blue;
 	line-height: 60px;
-	font-weight: 300;
+	font-size: 90px;
 }
 
 h2 {
 	font-size: 24px;
-	color: #42C3C9;
+	color: blue;
 	line-height: 29px;
 }
 
 h3 {
 	font-size: 18px;
-	color: #4A4A4A;
+	color: blue;
 	line-height: 23px;
 }
  p {
- 	font-family:"Reenie Beanie","Rock Salt",Monoton,"Black Han Sans";
+	 font-family: 'Titan One', cursive;'Caveat Brush', cursive;
  	font-size: 16px;
- 	color: #7B7573;
+ 	color: blue;
  	line-height: 24px;
- 	font-weight: 400;
+ 	font-size: 90px;
  }
 
  strong {
  	font-size: 16px;
- 	color: #7B7573;
+ 	color: blue;
  	line-height: 24px;
  }
 
  a {
  	font-size: 14px;
- 	color: #0093B9;
+ 	color: blue;
  	line-height: 17px;
  }
 .padding-top {
@@ -63,19 +74,12 @@ h3 {
 .padding-none {
 	padding: 0;
 }
-.btn {
-	padding: 20px;
-	margin: 0;
-	border-color: #9FB80A;
-	border-width: 2px;
-	color: #9FB80A;;
-}
+
 .btn:hover {
 	border-color: #9FB80A;
 }
 .btn.delete {
 	border-color: #aaaaaa;
-	color: #aaaaaa;
 }
 .btn.delete:hover {
 	border-color: #aaaaaa;

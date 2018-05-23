@@ -2,6 +2,7 @@
 {% block content %}
 {% include "header.html" %}
 <head>
+<!--
 <script async>
         $(window).load(function() {
             $(".preload").fadeOut("5000");
@@ -17,7 +18,7 @@
             z-index: 9999;
             background: url(images/giffi.gif) center no-repeat #fff;
         }
-    </style>
+    </style>-->
 	</head>
 	<body>
 	<div class="preload"></div>
@@ -46,7 +47,7 @@
       {% endif %}
       <br><br>
       {% for restaurant in restaurants %}
-      <a href= '{{url_for('showMenu', restaurant_id = restaurant.id) }}'>{{ restaurant.name }}</a>
+      <a href= '{{url_for('showMenu', restaurant_id = restaurant.id) }}' class="as">{{ restaurant.name }}</a>
       <br>
       {% if 'username'in login_session %}
       <br>

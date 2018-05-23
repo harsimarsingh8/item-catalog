@@ -39,14 +39,13 @@ class MenuItem(Base):
     categories = Column(String(20), nullable=False)
     date = Column(DateTime, default=get_current_time,
     onupdate=get_current_time)
+
 # automatically updates on creation and update
 
-    def __init__(self, name):
-        self.name = name
 
-        """
-        Return object data in easily serializeable format
-        """
+    """
+        Return object data in easily serializeable format.
+    """
     @property
     def serialize(self):
         return {

@@ -227,12 +227,12 @@ def mainpage():
     if login_session.has_key('email') and login_session['email']:
          print "hello";
          flag = 1
-         return render_template('main.html', menu_item=menu_item, STATE = login_session['state'], name=login_session['username'], image=login_session['picture'])
+         return render_template('restaurant.html', menu_item=menu_item, STATE = login_session['state'], name=login_session['username'], image=login_session['picture'])
     flag = 0
     if login_session.has_key('email') and login_session['email']:
         flag = 1
-        return render_template('main.html', menu=menu, STATE = login_session['state'], name=login_session['username'], image=login_session['picture'])
-    return render_template('main.html', menu=menu, STATE = login_session['state'],flag = flag, name='', image='')
+        return render_template('restaurant.html', menu=menu, STATE = login_session['state'], name=login_session['username'], image=login_session['picture'])
+    return render_template('restaurant.html', menu=menu, STATE = login_session['state'],flag = flag, name='', image='')
 
 
 
@@ -264,7 +264,7 @@ def fbconnect():
         split the token first on commas and select the first index which gives us the key : value
         for the server access token then we split it on colons to pull out the actual token value
         and replace the remaining quotes with nothing so that it can be used directly in the graph
-        api calls
+        api calls.
     """
 
     token = result.split(',')[0].split(':')[1].replace('"', '')
@@ -308,7 +308,7 @@ def fbconnect():
                              border-radius: 56px 55px 0px 200px;
                             -moz-border-radius: 56px 55px 0px 200px;
                             -webkit-border-radius: 56px 55px 0px 200px;
-                            border: 0px solid #000000;">
+                            border: 0px solid #000000;"
               '''
 
     flash('You are now logged in as {name}'.format(name=login_session['username']))
