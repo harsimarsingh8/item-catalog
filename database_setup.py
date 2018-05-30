@@ -27,6 +27,25 @@ Base = declarative_base()
 def get_current_time():
     return datetime.datetime.now()
 
+class Restaurant(Base):
+    __tablename__ = 'restaurant'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(250), nullable=False)
+    image = Column(String(150))
+    description = Column(String(250))
+
+    @property
+    def serialize(self):
+        """
+        Return serializeable format of the restaurant Object.
+        """
+        return {
+            'id': self.id,
+            'name': self.name,
+            'image': self.image,
+            'description': self.description,
+        }
+
 
 class MenuItem(Base):
     __tablename__ = 'menu_item'
@@ -39,6 +58,8 @@ class MenuItem(Base):
     categories = Column(String(20), nullable=False)
     date = Column(DateTime, default=get_current_time,
     onupdate=get_current_time)
+    restaurant_id = Column(Integer, ForeignKey('restaurant.id'))
+    restaurant = relationship(Restaurant);  
 
 # automatically updates on creation and update
 
@@ -67,27 +88,6 @@ class User(Base):
     user_id = Column(Integer, ForeignKey('menu_item.id'))
     user = relationship(MenuItem)
 
-
-class Restaurant(Base):
-    __tablename__ = 'restaurant'
-    user_id = Column(Integer, ForeignKey('user.id'))
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    image = Column(String(150))
-    description = Column(String(250))
-    user = relationship(User)
-
-    @property
-    def serialize(self):
-        """
-        Return serializeable format of the restaurant Object.
-        """
-        return {
-            'id': self.id,
-            'name': self.name,
-            'image': self.image,
-            'description': self.description,
-        }
 
 engine = create_engine('sqlite:///restaurantmenu.db')
 
