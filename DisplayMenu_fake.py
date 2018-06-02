@@ -60,7 +60,7 @@ item3 = MenuItem(name='Burger', description='yummy', price='150', image='https:/
 session.add(item3)
 session.commit()
 
-item4 = MenuItem(name='chicken wraps', description='yummy', price='150', image='https://www.quornfoodservice.co.uk/wp-content/uploads/2010/03/quorn_coronation_wraps.jpg'  # noqa,
+item4 = MenuItem(name='chicken wraps', description='yummy', price='150', image='https://www.quornfoodservice.co.uk/wp-content/uploads/2010/03/quorn_coronation_wraps.jpg',  # noqa
                  categories='Drinks', restaurant=restaurant4)
 session.add(item4)
 session.commit()
