@@ -10,20 +10,8 @@ from database_setup import Base, Restaurant, MenuItem, User
 from flask import Flask, render_template, request, redirect, url_for
 from flask import jsonify, flash
 from flask import session as login_session
-
-# login_session is working as a dictionary and save data for session when users login.
-# generate random string namely (state) that identify each session.
-
-app = Flask(__name__)
 import random
 import string
-
-"""
-    Oauth is the standard used for authorisation.
-    flow object from client_secrets in json file store client_id , client_secret and other Oauth parameters.
-
-    json module provides an api for converting in memory python objects into serializable form called json.
-"""
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
@@ -32,7 +20,21 @@ import json
 import requests
 import httplib2
 
-CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
+# login_session is working as a dictionary and save data for session when users login.  # noqa
+# generate random string namely (state) that identify each session.
+
+app = Flask(__name__)
+
+
+"""
+    Oauth is the standard used for authorisation.
+    flow object from client_secrets in json file store client_id ,
+    client_secret and other Oauth parameters.
+
+    json module provides an api for converting in memory python objects into serializable form called json.  # noqa
+"""
+
+CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']   # noqa
 APPLICATION_NAME = "Restaurant_Item_App"
 
 # Connect to Database and create database session.
@@ -42,13 +44,14 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 """
-    The function sessionmaker returns a class, binding the engine passed in the bind parameter.
+    The function sessionmaker returns a class, binding the engine passed in the bind parameter.   # noqa
     So, after creating the class, you have to instantiate it.
 """
 """
     state token is created which prevents anti-forgery attacks.
-    & store it in a session for later verification and provide security to users.
+    & store it in a session for later verification and provide security to users.   # noqa
 """
+
 
 @app.route('/login')
 def showLogin():
@@ -61,30 +64,32 @@ def showLogin():
 
 @app.route('/menus/JSON')
 def menusjson():
-    menu=session.query(MenuItem).all()
+    menu = session.query(MenuItem).all()
     if login_session.has_key('email') and login_session['email']:
         return jsonify(menuItems=[i.serialize for i in menu])
     return redirect(url_for('mainpage'))
 
+
 @app.route('/menus/<int:price>', methods=['GET', 'POST'])
 def sort(price):
-    prc=session.query(MenuItem).filter_by(price=price)
+    prc = session.query(MenuItem).filter_by(price=price)
     return render_template('main.html', menu_item=prc)
+
 
 @app.route('/menus/<string:name>', methods=['GET', 'POST'])
 def sorted(name):
-    nam=session.query(MenuItem).filter_by(name=name)
+    nam = session.query(MenuItem).filter_by(name=name)
     return render_template('main.html', menu_item=nam)
-
 
     """
     Created a function that handles the code sent back from call back method.
     """
 
+
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # validating state token
-    # *args is used to send a non-keyworded variable length argument list to the function
+    # *args is used to send a non-keyworded variable length argument list to the function.  # noqa
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -92,8 +97,6 @@ def gconnect():
     code = request.data
     # authorization code is obtained
     try:
-
-
         oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
@@ -105,6 +108,8 @@ def gconnect():
 
         # checking that the obtained access token is valid
     access_token = credentials.access_token
+    login_session['access_token'] = access_token
+    print (access_token)
     url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
            % access_token)
     h = httplib2.Http()
@@ -141,25 +146,27 @@ def gconnect():
         return response
 
         # store the access token in the session for later use.
-    login_session['credentials'] = credentials.access_token
+    # login_session['credentials'] = credentials
+    print ('access_token (login)-> ', credentials.access_token)
     login_session['gplus_id'] = gplus_id
-    print login_session['credentials']
 
     # get user Information through google account.
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt': 'json'}
     answer = requests.get(userinfo_url, params=params)
     data = answer.json()
-
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
     # see if a user exist, if does'nt make a new one.
     user_id = getUserID(login_session['email'])
-    if user_id is none:
+
+    print ("before")
+    if user_id is None:
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
+    print ("after")
 
     output = ''
     output += '<h1>Welcome, '
@@ -174,7 +181,7 @@ def gconnect():
                              -webkit-border-radius: 56px 55px 0px 200px;
                              border: 0px solid #000000;">
               '''
-    flash("You are now logged in as {name}".format(name=login_session['username']))
+    # flash("You are now logged in as {name}".format(name=login_session['username'])).   # noqa
     return output
 
 
@@ -183,18 +190,20 @@ def gconnect():
     which is done by rejecting the access token.
 """
 
+
 @app.route('/gdisconnect')
 def gdisconnect():
-    credentials = login_session.get('credentials')
+    access_token = login_session.get('access_token')
     # dumps takes an object and produces a string.
     # credentials is empty then there is no one to disconnect.
-    if credentials is None:
+    if access_token is None:
         response = make_response(
             json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
         # execute http get req to revoke current token.
-    access_token = credentials.access_token
+    access_token = login_session['access_token']
+    print ("token -> ", access_token)
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
@@ -202,38 +211,36 @@ def gdisconnect():
     if result['status'] == '200':
         # Reset the user's sesson.
         # disconnecting the users.
-        del login_session['credentials']
         del login_session['gplus_id']
         del login_session['username']
         del login_session['email']
         del login_session['picture']
         # Response to indicate users has successfully logout from application.
         print "Successfully disconnected"
-        # Back to lmain page as user should see items even though he has not sign in.
-        return render_template('main.html', restaurants=restaurants)
+        restaurants = session.query(Restaurant).all()
+        # Back to lmain page as user should see items even though he has not sign in.   # noqa
+        return render_template('restaurant.html', restaurants=restaurants)
     else:
-        # For whatever reason, the given token was invalid and something went wrong in disconnect process.
-
+        # For whatever reason, the given token was invalid and something went wrong in disconnect process.   # noqa
+        print (login_session['access_token'])
         print "Failed to revoke token for given user."
         return redirect(url_for('mainpage'))
-
 
 
 @app.route('/')
 @app.route('/menus', methods=['GET', 'POST'])
 def mainpage():
     showLogin()
-    menu=session.query(MenuItem).all()
+    # menu=session.query(MenuItem).all()
     if login_session.has_key('email') and login_session['email']:
-         print "hello";
-         flag = 1
-         return render_template('restaurant.html', menu_item=menu_item, STATE = login_session['state'], name=login_session['username'], image=login_session['picture'])
+        print "hello"
+        flag = 1
+        return render_template('restaurant.html', STATE=login_session['state'], name=login_session['username'], image=login_session['picture'])  # noqa
     flag = 0
     if login_session.has_key('email') and login_session['email']:
         flag = 1
-        return render_template('restaurant.html', menu=menu, STATE = login_session['state'], name=login_session['username'], image=login_session['picture'])
-    return render_template('restaurant.html', menu=menu, STATE = login_session['state'],flag = flag, name='', image='')
-
+        return render_template('restaurant.html', STATE=login_session['state'], name=login_session['username'], image=login_session['picture'])   # noqa
+    return render_template('restaurant.html', STATE=login_session['state'], flag=flag, name='', image='')   # noqa
 
 
 @app.route('/fbconnect', methods=['POST'])
@@ -245,31 +252,29 @@ def fbconnect():
     access_token = request.data
     print "access token received %s " % access_token
 
-
     app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
+    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (   # noqa
         app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
-
 
     # Use token to get user info from API
     userinfo_url = "https://graph.facebook.com/v2.8/me"
 
     """
-        Due to the formatting for the result from the server token exchange we have to
-        split the token first on commas and select the first index which gives us the key : value
-        for the server access token then we split it on colons to pull out the actual token value
-        and replace the remaining quotes with nothing so that it can be used directly in the graph
+        Due to the formatting for the result from the server token exchange we have to   # noqa
+        split the token first on commas and select the first index which gives us the key : value   # noqa
+        for the server access token then we split it on colons to pull out the actual token value   # noqa
+        and replace the remaining quotes with nothing so that it can be used directly in the graph   # noqa
         api calls.
     """
 
     token = result.split(',')[0].split(':')[1].replace('"', '')
 
-    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token
+    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token   # noqa
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     # print "url sent for API access:%s"% url
@@ -283,7 +288,7 @@ def fbconnect():
     login_session['access_token'] = token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token
+    url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token   # noqa
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -311,15 +316,16 @@ def fbconnect():
                             border: 0px solid #000000;"
               '''
 
-    flash('You are now logged in as {name}'.format(name=login_session['username']))
+    flash('You are now logged in as {name}'.format(name=login_session['username']))   # noqa
     return output
+
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)   # noqa
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     print "Successfully Disconnected"
@@ -328,6 +334,7 @@ def fbdisconnect():
 """
     function which returns JSON APIs to view Restaurant Information.
 """
+
 
 @app.route('/restaurant/<int:restaurant_id>/menu/JSON')
 def restaurantMenuJSON(restaurant_id):
@@ -356,15 +363,20 @@ def restaurantsJSON():
     Function shows all restaurant initially present in the database.
 """
 
-@app.route('/')
+
 @app.route('/restaurant/')
 def showRestaurants():
     restaurants = session.query(Restaurant).order_by(asc(Restaurant.name))
-    return render_template('restaurant.html', restaurants=restaurants,login_session=login_session)
+    if 'username' not in login_session or login_session['username'] is None:
+        login = 0
+    else:
+        login = 1
+    return render_template('restaurant.html', restaurants=restaurants, login_session=login_session, login=login)   # noqa
 
 """
     Function for adding new restaurant in the database.
 """
+
 
 @app.route('/restaurant/new/', methods=['GET', 'POST'])
 def newRestaurant():
@@ -378,10 +390,10 @@ def newRestaurant():
         return redirect('/login')
     if request.method == 'POST':
         newRestaurant = Restaurant(
-            name=request.form['name'], image=request.form['image'], description=request.form['description'], user_id=login_session['user_id'])
+            name=request.form['name'], image=request.form['image'], description=request.form['description'], user_id=login_session['user_id'])   # noqa
         session.add(newRestaurant)
         # flash('New Restaurant %s Successfully Created' % newRestaurant.name)
-        flash('New Restaurant {name}  Successfully Created'.format(name=newRestaurant.name))
+        flash('New Restaurant {name}  Successfully Created'.format(name=newRestaurant.name))   # noqa
         session.commit()
         return redirect(url_for('showRestaurants'))
     else:
@@ -390,6 +402,7 @@ def newRestaurant():
 """
         Function for deleting new restaurant in the database.
 """
+
 
 @app.route('/restaurant/<int:restaurant_id>/delete/', methods=['GET', 'POST'])
 def deleteRestaurant(restaurant_id):
@@ -410,9 +423,9 @@ def deleteRestaurant(restaurant_id):
         return redirect(url_for('showRestaurants'))
     if request.method == 'POST':
         session.delete(restaurantToDelete)
-        flash('{name} Successfully Deleted'.format(name=restaurantToDelete.name))
+        flash('{name} Successfully Deleted'.format(name=restaurantToDelete.name))   # noqa
         session.commit()
-        return redirect(url_for('showRestaurants', restaurant_id=restaurant_id))
+        return redirect(url_for('showRestaurants', restaurant_id=restaurant_id))   # noqa
     else:
         return render_template(
             'deleterestaurant.html', restaurant=restaurantToDelete)
@@ -420,6 +433,7 @@ def deleteRestaurant(restaurant_id):
 """
     Function for editing existing restaurant in the database.
 """
+
 
 @app.route('/restaurant/<int:restaurant_id>/edit/', methods=['GET', 'POST'])
 def editRestaurant(restaurant_id):
@@ -443,15 +457,16 @@ def editRestaurant(restaurant_id):
     if request.method == 'POST':
         if request.form['name']:
             editedRestaurant.name = request.form['name']
-            flash('Restaurant successfully edited {name}'.format(name=editedRestaurant.name))
+            flash('Restaurant successfully edited {name}'.format(name=editedRestaurant.name))   # noqa
             return redirect(
                 url_for('showRestaurants', restaurant_id=restaurant_id))
         else:
-            return render_template('editrestaurant.html', restaurant=editedRestaurant)
+            return render_template('editrestaurant.html', restaurant=editedRestaurant)   # noqa
 
 """
     Function showing the menu of the restaurant.
 """
+
 
 @app.route('/restaurant/<int:restaurant_id>/')
 @app.route('/restaurant/<int:restaurant_id>/menu/')
@@ -459,12 +474,17 @@ def showMenu(restaurant_id):
     restaurant = session.query(
         Restaurant).filter_by(
             id=restaurant_id).one()
+
     if restaurant is None:
         flash("Restaurant does not exist")
         return redirect(url_for('showRestaurants'))
+
     items = session.query(MenuItem).filter_by(
         restaurant_id=restaurant_id).all()
-    if 'username' not in login_session or restaurant.user_id:
+
+    # print(login_session['username'])
+
+    if 'username' not in login_session:
         return render_template(
             'main.html',
             items=items,
@@ -473,12 +493,13 @@ def showMenu(restaurant_id):
         return render_template(
             'menu.html',
             items=items,
-            restaurant=restaurant
+            restaurant=restaurant,
+            login_session=login_session
             )
-
 """
     Function to edit the existing menu item.
 """
+
 
 @app.route(
     '/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit',
@@ -493,16 +514,20 @@ def editMenuItem(restaurant_id, menu_id):
     if 'username' not in login_session:
         return redirect('/login')
     editedItem = session.query(MenuItem).filter_by(id=menu_id).one()
-    restaurantToDelete = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    print (editedItem.user_id)
+    print (login_session['user_id'])
+    restaurantToDelete = session.query(Restaurant).filter_by(id=restaurant_id).one()   # noqa
     if restaurantToDelete is None:
         flash('This restaurant does not exist')
         return redirect(url_for('showRestaurants'))
     if editedItem is None:
         flash('This item does not exist')
         return redirect(url_for('showMenu', restaurant_id=restaurant_id))
-    if restaurantToDelete.user_id != login_session['user_id']:
+
+    if editedItem.user_id != login_session['user_id']:
         flash('You are not authorized to edit item from this restaurant menu')
         return redirect(url_for('showMenu', restaurant_id=restaurant_id))
+
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -522,13 +547,14 @@ def editMenuItem(restaurant_id, menu_id):
         return render_template(
             'editmenuitem.html',
             restaurant_id=restaurant_id,
-            menu_id=menu_id, i=editedItem)
+            menu_id=menu_id, item=editedItem)
 
 """
     Function create new menu item in the restaurant.
 """
 
-@app.route('/restaurant/<int:restaurant_id>/menu/new/', methods=['GET', 'POST'])
+
+@app.route('/restaurant/<int:restaurant_id>/menu/new/', methods=['GET', 'POST'])   # noqa
 def newMenuItem(restaurant_id):
     """
     After you are logged in you need to protect your webpages that
@@ -545,21 +571,23 @@ def newMenuItem(restaurant_id):
     if restaurant is None:
         flash('This restaurant does not exist')
         return redirect(url_for('showRestaurants'))
-    if login_session['user_id'] != restaurant.user_id:
-        flash('You are not authorized to create menu item for this restaurant')
-        return redirect(url_for('showMenu', restaurant_id=restaurant_id))
+
     if request.method == 'POST':
+        print ("hello")
+
         newItem = MenuItem(
-            name=request.form['title'],
+            name=request.form['name'],
             description=request.form['description'],
             price=request.form['price'],
             image=request.form['image'],
-            categories=request.form['categories'],
+            categories=request.form['category'],
             restaurant_id=restaurant_id,
-            user_id=restaurant.user_id)
+            user_id=login_session['user_id'])
         session.add(newItem)
+        print("added")
         session.commit()
-        flash('New Menu {name} Item Successfully Created'.format(name=newItem.name))
+        print ("commited")
+        flash('New Menu {name} Item Successfully Created'.format(name=newItem.name))  # noqa
         return redirect(url_for('showMenu', restaurant_id=restaurant_id))
     else:
         return render_template('newmenuitem.html', restaurant_id=restaurant_id)
@@ -567,6 +595,7 @@ def newMenuItem(restaurant_id):
 """
     Function to delete the existing menu item.
 """
+
 
 @app.route(
     '/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete',
@@ -586,24 +615,27 @@ def deleteMenuItem(restaurant_id, menu_id):
         flash('This restaurant does not exist')
         return redirect(url_for('showRestaurants'))
     itemToDelete = session.query(MenuItem).filter_by(id=menu_id).one()
+
     if itemToDelete is None:
         flash('This item does not exist')
         return redirect(url_for('showMenu', restaurant_id=restaurant_id))
-    if restaurantToDelete.user_id != login_session['user_id']:
-        flash(
-            'You are not authorized to delete item from this restaurant menu')
+
+    if itemToDelete.user_id != login_session['user_id']:
+        flash('You are not authorized to delete item from this restaurant menu')  # noqa
         return redirect(url_for('showMenu', restaurant_id=restaurant_id))
+
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
         flash('Menu Item Successfully Deleted')
         return redirect(url_for('showMenu', restaurant_id=restaurant_id))
     else:
-        return render_template('deleteMenuItem.html', item=itemToDelete)
+        return render_template('deleteMenuItem.html', item=itemToDelete, restaurant_id=restaurant_id)   # noqa
 
 """
     Creates a new user and allow him to login.
 """
+
 
 def createUser(login_session):
     newUser = User(name=login_session['username'],
@@ -618,12 +650,14 @@ def createUser(login_session):
     Created a new user by fetching its email_id.
 """
 
+
 def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
     except:
         return None
+
 
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()

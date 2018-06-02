@@ -1,0 +1,35 @@
+Included requirements.txt for dependencies:
+------------------------------------------
+
+
+The objective of this file is to ease while installing dependency, you don't want someone to run in error because several
+modules not found on their system.
+
+*For example one could not have oauth2client installed in their system , he/she will face error no module namedoauth2client` found.
+To avoid this we write all the modules required in this file along with the version number something like this
+
+Flask==0.12.0
+Jinja2==2.8.1
+gunicorn==19.6.0
+
+
+*So now when someone runs:
+-------------------------
+
+pip install -r requirements.txt
+
+(regardless of any missing dependency they will be able to smoothly install your app.)
+
+the required dependencies for the project are:
+----------------------------------------------
+
+- Python
+- HTML
+- CSS
+- Bootstrap
+- Flask[0.12.0]
+- Jinja2(Template engine)[2.8.1]
+- SQLAchemy
+- OAuth
+- Facebook / Google Login
+- gunicorn[19.6.0]

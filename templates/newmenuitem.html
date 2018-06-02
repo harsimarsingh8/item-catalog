@@ -1,35 +1,33 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-			<h2>New Menu Item</h2>
-			<form action="{{ url_for('newMenuItem', restaurant_id = restaurant_id) }}" method = 'post'>
-				<div class="form-group">
-					<label for="name">Name:</label>
-						<input type ="text" maxlength="50" class="form-control" name="name" placeholder="Name of the item">
-
-					<label for="description">Description:</label>
-						<textarea class="form-control" maxlength="250" rows="3" name="description" placeholder="Description of the Item"></textarea>
-
-					<label for="price">Price:</label>
-						<p>$</p>
-						<input type ="text" class="form-control" maxlength="10" name="price" placeholder="Price of item in $">
-					
+		
+		
+<h2>New Menu Item</h2>
+<form action="{{ url_for('newMenuItem', restaurant_id = restaurant_id) }}" method = 'POST'>
+	<div class="form-group">
+		<label for="name">Name:</label>
+		<input type ="text" maxlength="50" class="form-control" name="name" placeholder="Name of the item">
+			<label for="description">Description:</label>
+			<input class="form-control" maxlength="250"  name="description" placeholder="Description of the Item">
+				<label for="price">Price:</label>
+				<input type ="text" class="form-control" maxlength="10" name="price" placeholder="Price of item in $">
 					<label for="image">image:</label>
-						<input  class="form-control" id="image" type="image"  src="" name="image"  placeholder="enter item image url">
-					
-					
-					<label for="categories">Categories:</label>
-						<input type="text" maxlength="10" class="form-control" name="categories" placeholder="categorie of the item">
-				</div>
-			
-				<a href = '{{url_for('showRestaurants', restaurant_id=i.restaurant_id)}}'>	
+					<input  class="form-control" id="image" name="image" type="text" placeholder="Enter item image url">
+						<label for="category">category:</label>
+						<input  class="form-control" id="category" name="category" type="text" placeholder="Enter item category">
+						</div>
 						<button type="submit" class="btn btn-info">
-						<i class="material-icons">create</i>Create</button>
-					</a>
-					<br>
-					<a href = '{{url_for('showRestaurants', restaurant_id=i.restaurant_id)}}'>
-						<button type="submit" class="btn btn-warning">
-						<i class="material-icons">cancel</i>Cancel</button>
-					</a>
-			</form>
-	{% endblock %}
+							<i class="material-icons">create</i>
+					Create
+				
+						</button>
+						<br>
+						</form>
+						<a href = '{{url_for('showRestaurants', restaurant_id=restaurant_id)}}'>
+							<button class="btn btn-info">
+								<i class="material-icons">cancel</i>Cancel 
+							</button>
+						</a>
+
+{% endblock %}
