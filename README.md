@@ -32,7 +32,7 @@ This program uses third-party auth with Google or Facebook. Some of the technolo
   this [Link](https://github.com/harsimarsingh8/item-catalog)
 * Launch the Vagrant Machine using `vagrant up`
 * Run the web-app using `python /vagrant/project 3/item_catalog.py`
-* Open the browser window and type `http://localhost:8080`(http://localhost:8080)
+* Open the browser window and type `http://localhost:8000`(http://localhost:8000)
 - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
 ## TO RUN
