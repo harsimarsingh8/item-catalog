@@ -24,6 +24,7 @@ import httplib2
 # generate random string namely (state) that identify each session.
 
 app = Flask(__name__)
+app.secret_key = 'super_secret_key'
 
 
 """
@@ -665,6 +666,5 @@ def getUserInfo(user_id):
     return user
 
 if __name__ == '__main__':
-    app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
